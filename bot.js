@@ -1,21 +1,27 @@
-const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys")
 const P = require("pino")
 
-async function startBot() {
+async function startBot(){
 
-const { state, saveCreds } = await useMultiFileAuthState("auth")
+const { state, saveCreds } = await useMultiFileAuthState("session")
 
 const sock = makeWASocket({
 logger: P({ level: "silent" }),
-auth: state,
-printQRInTerminal: true
+auth: state
 })
 
 sock.ev.on("creds.update", saveCreds)
 
-sock.ev.on("connection.update", ({ connection }) => {
+sock.ev.on("connection.update", (update) => {
 
-if (connection === "open") {
+const { connection, qr } = update
+
+if(qr){
+console.log("امسح الكود ده من واتساب:")
+console.log(qr)
+}
+
+if(connection === "open"){
 console.log("HAMO X BOT CONNECTED")
 }
 
@@ -24,44 +30,33 @@ console.log("HAMO X BOT CONNECTED")
 sock.ev.on("messages.upsert", async ({ messages }) => {
 
 const msg = messages[0]
-if (!msg.message) return
+if(!msg.message) return
 
 const text =
 msg.message.conversation ||
-msg.message.extendedTextMessage?.text ||
-""
+msg.message.extendedTextMessage?.text
 
 const from = msg.key.remoteJid
 
-if (text === "الاوامر") {
-
+if(text === "الاوامر"){
 await sock.sendMessage(from,{
-text:`🔥 HAMO X AI BOT 🔥
+text:`🔥 HAMO X BOT 🔥
 
 📜 الاوامر
 
 الاوامر
 المطور
-ping`
+ping
+`
 })
-
 }
 
-if (text === "المطور") {
-
-await sock.sendMessage(from,{
-text:`👑 المطور
-HAMO`
-})
-
+if(text === "ping"){
+await sock.sendMessage(from,{ text:"🏓 البوت شغال" })
 }
 
-if (text === "ping") {
-
-await sock.sendMessage(from,{
-text:`🏓 bot online`
-})
-
+if(text === "المطور"){
+await sock.sendMessage(from,{ text:"👑 المطور HAMO" })
 }
 
 })
