@@ -1,5 +1,5 @@
 const { default: makeWASocket, useMultiFileAuthState } = require("@whiskeysockets/baileys")
-const P = require("pino")
+const pino = require("pino")
 const QRCode = require("qrcode-terminal")
 
 async function startBot(){
@@ -8,7 +8,7 @@ const { state, saveCreds } = await useMultiFileAuthState("session")
 
 const sock = makeWASocket({
 auth: state,
-logger: P({ level: "silent" }),
+logger: pino({ level: "silent" }),
 browser: ["HAMO X BOT","Chrome","1.0"]
 })
 
@@ -20,7 +20,7 @@ const { connection, qr } = update
 
 if(qr){
 console.log("امسح الكود ده من واتساب:")
-QRCode.generate(qr, { small: true })
+QRCode.generate(qr,{small:true})
 }
 
 if(connection === "open"){
@@ -41,6 +41,7 @@ msg.message.extendedTextMessage?.text
 const from = msg.key.remoteJid
 
 if(text === "الاوامر"){
+
 await sock.sendMessage(from,{
 text:`🔥 HAMO X BOT 🔥
 
@@ -51,14 +52,23 @@ ping
 المطور
 `
 })
+
 }
 
 if(text === "ping"){
-await sock.sendMessage(from,{ text:"🏓 البوت شغال" })
+
+await sock.sendMessage(from,{
+text:"🏓 البوت شغال"
+})
+
 }
 
 if(text === "المطور"){
-await sock.sendMessage(from,{ text:"👑 المطور HAMO" })
+
+await sock.sendMessage(from,{
+text:"👑 المطور HAMO"
+})
+
 }
 
 })
